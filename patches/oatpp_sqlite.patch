@@ -1,0 +1,93 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -54,8 +54,8 @@
+     get_target_property(OATPP_INCLUDE oatpp::oatpp INTERFACE_INCLUDE_DIRECTORIES)
+     message("OATPP_INCLUDE=${OATPP_INCLUDE}")
+ 
+-    get_target_property(OATPP_TEST_INCLUDE oatpp::oatpp-test INTERFACE_INCLUDE_DIRECTORIES)
+-    message("OATPP_TEST_INCLUDE=${OATPP_TEST_INCLUDE}")
++    # get_target_property(OATPP_TEST_INCLUDE oatpp::oatpp-test INTERFACE_INCLUDE_DIRECTORIES)
++    # message("OATPP_TEST_INCLUDE=${OATPP_TEST_INCLUDE}")
+ 
+ elseif(OATPP_MODULES_LOCATION STREQUAL OATPP_MODULES_LOCATION_EXTERNAL)
+ 
+diff --git a/cmake/module-utils.cmake b/cmake/module-utils.cmake
+--- a/cmake/module-utils.cmake
++++ b/cmake/module-utils.cmake
+@@ -6,7 +6,7 @@
+ 
+         target_link_libraries(${target}
+                 PRIVATE oatpp::oatpp
+-                PRIVATE oatpp::oatpp-test
++                # PRIVATE oatpp::oatpp-test
+         )
+ 
+     else()
+@@ -17,9 +17,9 @@
+         #target_link_directories(${target} PRIVATE ${OATPP_DIR_LIB})
+         target_link_libraries(${target}
+                 PRIVATE oatpp
+-                PRIVATE oatpp-test
++                # PRIVATE oatpp-test
+         )
+ 
+     endif()
+ 
+ endmacro()
+diff --git a/src/oatpp-sqlite/Executor.cpp b/src/oatpp-sqlite/Executor.cpp
+--- a/src/oatpp-sqlite/Executor.cpp
++++ b/src/oatpp-sqlite/Executor.cpp
+@@ -209,6 +209,7 @@
+   }
+ 
+   auto sqliteConn = std::static_pointer_cast<sqlite::Connection>(conn.object);
++  sqlite3_exec(sqliteConn->getHandle(), "PRAGMA foreign_keys=ON;", NULL, NULL, NULL);
+ 
+   auto extra = std::static_pointer_cast<ql_template::Parser::TemplateExtra>(queryTemplate.getExtraData());
+ 
+@@ -237,6 +238,7 @@
+   }
+ 
+   auto sqliteConn = std::static_pointer_cast<sqlite::Connection>(conn.object);
++  sqlite3_exec(sqliteConn->getHandle(), "PRAGMA foreign_keys=ON;", NULL, NULL, NULL);
+   sqlite3_stmt* stmt;
+   auto res = sqlite3_prepare_v2(sqliteConn->getHandle(), statement->c_str(), -1, &stmt, nullptr);
+   (void) res; // TODO - check for res
+@@ -398,3 +400,4 @@
+ }
+ 
+ }}
++
+diff --git a/src/oatpp-sqlite/mapping/type/Blob.hpp b/src/oatpp-sqlite/mapping/type/Blob.hpp
+--- a/src/oatpp-sqlite/mapping/type/Blob.hpp
++++ b/src/oatpp-sqlite/mapping/type/Blob.hpp
+@@ -49,7 +49,23 @@
+ 
+     oatpp::String interpret(const type::Blob& value) const override {
+       if(value) {
++#pragma clang diagnostic push
++#pragma clang diagnostic ignored "-Wall"
++#pragma clang diagnostic ignored "-Wextra"
++#pragma clang diagnostic ignored "-Wshadow"
++#pragma clang diagnostic ignored "-Wnon-virtual-dtor"
++#pragma clang diagnostic ignored "-Wold-style-cast"
++#pragma clang diagnostic ignored "-Wcast-align"
++#pragma clang diagnostic ignored "-Wunused"
++#pragma clang diagnostic ignored "-Woverloaded-virtual"
++#pragma clang diagnostic ignored "-Wpedantic"
++#pragma clang diagnostic ignored "-Wconversion"
++#pragma clang diagnostic ignored "-Wsign-conversion"
++#pragma clang diagnostic ignored "-Wnull-dereference"
++#pragma clang diagnostic ignored "-Wdouble-promotion"
++#pragma clang diagnostic ignored "-Wimplicit-fallthrough"
+         return encoding::Base64::encode(value->data(), value->size());
++#pragma clangd diagnostic pop
+       }
+       return nullptr;
+     }
+@@ -77,3 +93,4 @@
+ }}}}
+ 
+ #endif // oatpp_sqlite_mapping_type_Blob_hpp
++

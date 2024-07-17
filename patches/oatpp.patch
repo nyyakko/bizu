@@ -1,0 +1,70 @@
+diff --git a/src/oatpp/data/type/Type.hpp b/src/oatpp/data/type/Type.hpp
+--- a/src/oatpp/data/type/Type.hpp
++++ b/src/oatpp/data/type/Type.hpp
+@@ -296,7 +296,23 @@
+   {}
+ 
+   Void(Void&& other)
++#pragma clang diagnostic push
++#pragma clang diagnostic ignored "-Wall"
++#pragma clang diagnostic ignored "-Wextra"
++#pragma clang diagnostic ignored "-Wshadow"
++#pragma clang diagnostic ignored "-Wnon-virtual-dtor"
++#pragma clang diagnostic ignored "-Wold-style-cast"
++#pragma clang diagnostic ignored "-Wcast-align"
++#pragma clang diagnostic ignored "-Wunused"
++#pragma clang diagnostic ignored "-Woverloaded-virtual"
++#pragma clang diagnostic ignored "-Wpedantic"
++#pragma clang diagnostic ignored "-Wconversion"
++#pragma clang diagnostic ignored "-Wsign-conversion"
++#pragma clang diagnostic ignored "-Wnull-dereference"
++#pragma clang diagnostic ignored "-Wdouble-promotion"
++#pragma clang diagnostic ignored "-Wimplicit-fallthrough"
+     : type::ObjectWrapper<void, __class::Void>(std::move(other.getPtr()), other.getValueType())
++#pragma clangd diagnostic pop
+   {}
+ 
+   template<typename T, typename C>
+@@ -649,3 +665,4 @@
+ }
+   
+ #endif /* oatpp_data_type_Type_hpp */
++
+diff --git a/src/oatpp/provider/Provider.hpp b/src/oatpp/provider/Provider.hpp
+--- a/src/oatpp/provider/Provider.hpp
++++ b/src/oatpp/provider/Provider.hpp
+@@ -45,8 +45,13 @@
+   ResourceHandleTemplate() = default;
+ 
+   /**
+-   * Nullptr constructor.
++   * Default virtual destructor.
+    */
++  virtual ~ResourceHandleTemplate() = default;
++
++  /**
++   * Nullptr constructor.
++   */
+   ResourceHandleTemplate(std::nullptr_t) {}
+ 
+   /**
+@@ -103,8 +108,13 @@
+   ResourceHandle() = default;
+ 
+   /**
+-   * Nullptr constructor.
++   * Default virtual destructor.
+    */
++  virtual ~ResourceHandle() = default;
++
++  /**
++   * Nullptr constructor.
++   */
+   ResourceHandle(std::nullptr_t) {}
+ 
+   /**
+@@ -223,3 +233,4 @@
+ }}
+ 
+ #endif // oatpp_provider_Provider_hpp
++
