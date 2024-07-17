@@ -3,6 +3,7 @@
 .vscode/
 .vs/
 .jj/
-
 build/
+
 cmake/CPM.cmake
+database.sqlite
