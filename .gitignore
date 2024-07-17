@@ -1,0 +1,8 @@
+.clangd
+.cache/
+.vscode/
+.vs/
+.jj/
+
+build/
+cmake/CPM.cmake

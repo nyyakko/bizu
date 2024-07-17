@@ -1,0 +1,30 @@
+CREATE TABLE "users" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "name" STRING NOT NULL,
+    "password" STRING NOT NULL,
+    "auth" STRING NOT NULL
+);
+
+CREATE TABLE "groups" (
+    "id" INTEGER PRIMARY KEY,
+    "ownerId" INTEGER NOT NULL REFERENCES users ON DELETE CASCADE,
+    "name" STRING NOT NULL
+);
+
+CREATE TABLE "groupActivities" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "groupId" INTEGER NOT NULL REFERENCES groups ON DELETE CASCADE,
+    "subject" STRING NOT NULL,
+    "bimester" INTEGER NOT NULL,
+    "category" INTEGER NOT NULL,
+    "due" INTEGER NOT NULL,
+    "description" STRING
+);
+
+CREATE TABLE "groupMembers" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "groupId" INTEGER NOT NULL REFERENCES groups ON DELETE CASCADE,
+    "userId" INTEGER NOT NULL REFERENCES users ON DELETE CASCADE,
+    "userRole" STRING NOT NULL
+);
+
