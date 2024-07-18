@@ -41,6 +41,56 @@ public:
         "SELECT * FROM groupActivities WHERE groupId = :groupId;",
         PARAM(oatpp::Int64, groupId)
     );
+
+    QUERY(
+        updateActivitySubject,
+        "UPDATE groupActivities "
+        "    SET subject = :subject "
+        "WHERE groupId = :groupId AND id = :activityId;",
+        PARAM(oatpp::Int64, groupId),
+        PARAM(oatpp::Int64, activityId),
+        PARAM(oatpp::String, subject)
+    );
+
+    QUERY(
+        updateActivityBimester,
+        "UPDATE groupActivities "
+        "    SET bimester = :bimester "
+        "WHERE groupId = :groupId AND id = :activityId;",
+        PARAM(oatpp::Int64, groupId),
+        PARAM(oatpp::Int64, activityId),
+        PARAM(oatpp::Int8, bimester)
+    );
+
+    QUERY(
+        updateActivityCategory,
+        "UPDATE groupActivities "
+        "    SET category = :category "
+        "WHERE groupId = :groupId AND id = :activityId;",
+        PARAM(oatpp::Int64, groupId),
+        PARAM(oatpp::Int64, activityId),
+        PARAM(oatpp::Int8, category)
+    );
+
+    QUERY(
+        updateActivityDueDate,
+        "UPDATE groupActivities "
+        "    SET due = :due "
+        "WHERE groupId = :groupId AND id = :activityId;",
+        PARAM(oatpp::Int64, groupId),
+        PARAM(oatpp::Int64, activityId),
+        PARAM(oatpp::Int64, due)
+    );
+
+    QUERY(
+        updateActivityDescription,
+        "UPDATE groupActivities "
+        "    SET description = :description "
+        "WHERE groupId = :groupId AND id = :activityId;",
+        PARAM(oatpp::Int64, groupId),
+        PARAM(oatpp::Int64, activityId),
+        PARAM(oatpp::String, description)
+    );
 };
 
 #include OATPP_CODEGEN_END(DbClient)

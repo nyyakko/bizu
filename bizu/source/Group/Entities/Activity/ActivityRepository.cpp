@@ -9,8 +9,26 @@ oatpp::Object<ActivityDTO> ActivityRepository::addActivity(oatpp::Int64 const& g
     return getActivityById(groupId, static_cast<v_int32>(activityId));
 }
 
+oatpp::Object<StatusDTO> ActivityRepository::updateActivity(oatpp::Int64 const& groupId, oatpp::Int64 const& activityId, oatpp::Object<ActivityDTO> const& activity)
+{
+    if (getActivityById(groupId, activityId) == nullptr) return nullptr;
+
+    if (activity->subject) dao_m.getObject()->updateActivitySubject(groupId, activityId, activity->subject);
+    if (activity->bimester) dao_m.getObject()->updateActivityBimester(groupId, activityId, activity->bimester);
+    if (activity->category) dao_m.getObject()->updateActivityCategory(groupId, activityId, activity->category);
+    if (activity->due) dao_m.getObject()->updateActivityDueDate(groupId, activityId, activity->due);
+    if (activity->description) dao_m.getObject()->updateActivityDescription(groupId, activityId, activity->description);
+
+    auto status = StatusDTO::createShared();
+    status->status = "OK";
+    status->code = 200;
+    return status;
+}
+
 oatpp::Object<StatusDTO> ActivityRepository::removeActivityById(oatpp::Int64 const& groupId, oatpp::Int64 const& activityId)
 {
+    if (getActivityById(groupId, activityId) == nullptr) return nullptr;
+
     auto operation = dao_m.getObject()->removeActivityById(groupId, activityId);
     auto status = StatusDTO::createShared();
     status->status = "OK";

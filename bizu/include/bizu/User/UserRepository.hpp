@@ -20,10 +20,11 @@ private:
 
 public:
     oatpp::Object<UserDTO> addUser(oatpp::Object<UserDTO> const& user);
-    oatpp::Object<StatusDTO> removeUserById(oatpp::Int64 userId);
+    oatpp::Object<StatusDTO> updateUser(oatpp::Int64 const& userId, oatpp::Object<UserDTO> const& user);
+    oatpp::Object<StatusDTO> removeUserById(oatpp::Int64 const& userId);
     oatpp::Vector<oatpp::Object<UserDTO>> getUsers();
     oatpp::Object<UserDTO> getUser(oatpp::Object<UserDTO> const& user);
-    oatpp::Object<UserDTO> getUserById(oatpp::Int64 userId);
+    oatpp::Object<UserDTO> getUserById(oatpp::Int64 const& userId);
     oatpp::Object<UserDTO> getUserByAuth(oatpp::String const& authorization);
 };
 

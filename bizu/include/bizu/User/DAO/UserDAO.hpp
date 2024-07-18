@@ -49,6 +49,24 @@ public:
         "SELECT * FROM users WHERE auth = :auth;",
         PARAM(oatpp::String, auth)
     );
+
+    QUERY(
+        updateUserName,
+        "UPDATE users "
+        "    SET name = :name "
+        "WHERE id = :id;",
+        PARAM(oatpp::Int64, id),
+        PARAM(oatpp::String, name)
+    );
+
+    QUERY(
+        updateUserPassword,
+        "UPDATE users "
+        "    SET password = :password "
+        "WHERE id = :id;",
+        PARAM(oatpp::Int64, id),
+        PARAM(oatpp::String, password)
+    );
 };
 
 #include OATPP_CODEGEN_END(DbClient)

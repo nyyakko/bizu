@@ -10,6 +10,8 @@ include(cmake/get_cpm.cmake)
 
 find_package(Threads REQUIRED)
 
+CPMAddPackage("gh:fmtlib/fmt#10.2.1")
+
 CPMAddPackage(
     NAME oatpp
     GITHUB_REPOSITORY oatpp/oatpp
@@ -34,7 +36,7 @@ if (oatpp-sqlite_ADDED)
     add_library(oatpp::oatpp-sqlite ALIAS oatpp-sqlite)
 endif()
 
-set(bizu_ExternalLibraries Threads::Threads oatpp::oatpp oatpp::oatpp-sqlite)
+set(bizu_ExternalLibraries Threads::Threads oatpp::oatpp oatpp::oatpp-sqlite fmt::fmt)
 
 add_subdirectory(bizu)
 

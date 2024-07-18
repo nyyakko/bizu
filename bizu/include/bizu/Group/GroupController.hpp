@@ -139,16 +139,34 @@ public:
         return createDtoResponse(Status::CODE_200, activities_m.addActivity(groupId, activity));
     }
 
+    ENDPOINT("PATCH", "groups/{groupId}/activity", updateActivity, PATH(oatpp::Int64, groupId), QUERY(Int64, id), BODY_DTO(Object<ActivityDTO>, activity), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
+    {
+        auto requestee = users_m.getUserByAuth(auth->token);
+        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
+
+        auto member = members_m.getMemberById(groupId, requestee->id);
+        OATPP_ASSERT_HTTP(member != nullptr, Status::CODE_401, "Unauthorized");
+        OATPP_ASSERT_HTTP(member->userRole <= Role::ADMIN, Status::CODE_401, "Unauthorized");
+
+        auto result = activities_m.modifyActivity(groupId, id, activity);
+        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_404, "Not found");
+
+        return createDtoResponse(Status::CODE_200, result);
+    }
+
     ENDPOINT("DELETE", "groups/{groupId}/deleteActivity", removeActivityById, PATH(oatpp::Int64, groupId), QUERY(Int64, id), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
     {
         auto requestee = users_m.getUserByAuth(auth->token);
         OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
 
-        auto result = members_m.getMemberById(groupId, requestee->id);
-        OATPP_ASSERT_HTTP(result != nullptr, Status::CODE_401, "Unauthorized");
-        OATPP_ASSERT_HTTP(result->userRole <= Role::ADMIN, Status::CODE_401, "Unauthorized");
+        auto member = members_m.getMemberById(groupId, requestee->id);
+        OATPP_ASSERT_HTTP(member != nullptr, Status::CODE_401, "Unauthorized");
+        OATPP_ASSERT_HTTP(member->userRole <= Role::ADMIN, Status::CODE_401, "Unauthorized");
 
-        return createDtoResponse(Status::CODE_200, activities_m.removeActivityById(groupId, id));
+        auto result = activities_m.removeActivityById(groupId, id);
+        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_404, "Not found");
+
+        return createDtoResponse(Status::CODE_200, result);
     }
 
     ENDPOINT("GET", "groups/{groupId}/activity", getActivityById, PATH(oatpp::Int64, groupId), QUERY(Int64, id), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
