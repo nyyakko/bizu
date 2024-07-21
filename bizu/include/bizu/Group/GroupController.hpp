@@ -58,32 +58,32 @@ public:
         return createDtoResponse(Status::CODE_200, result);
     }
 
-    ENDPOINT("PATCH", "groups/{groupId}", updateGroup, PATH(oatpp::Int64, groupId), BODY_DTO(Object<GroupDTO>, group), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
+    ENDPOINT("PATCH", "groups/group", updateGroup, QUERY(oatpp::Int64, id), BODY_DTO(Object<GroupDTO>, group), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
     {
         auto requestee = users_m.getUserByAuth(auth->token);
         OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
 
-        auto member = members_m.getMemberById(groupId, requestee->id);
+        auto member = members_m.getMemberById(id, requestee->id);
         OATPP_ASSERT_HTTP(member != nullptr, Status::CODE_401, "Unauthorized");
         OATPP_ASSERT_HTTP(member->userRole == Role::OWNER, Status::CODE_401, "Unauthorized");
 
-        auto result = groups_m.updateGroup(groupId, group);
+        auto result = groups_m.updateGroup(id, group);
         OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_404, "Not found");
 
         return createDtoResponse(Status::CODE_200, result);
     }
 
-    ENDPOINT("DELETE", "groups/{groupId}/delete", removeGroupById, PATH(oatpp::Int64, groupId), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
+    ENDPOINT("DELETE", "groups/deleteGroup", removeGroupById, QUERY(oatpp::Int64, id), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
     {
         auto requestee = users_m.getUserByAuth(auth->token);
         OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
 
-        auto member = members_m.getMemberById(groupId, requestee->id);
+        auto member = members_m.getMemberById(id, requestee->id);
         OATPP_ASSERT_HTTP(member != nullptr, Status::CODE_401, "Unauthorized");
         OATPP_ASSERT_HTTP(member->userRole == Role::OWNER, Status::CODE_401, "Unauthorized");
 
-        auto resultB = members_m.removeMemberById(groupId, requestee->id);
-        auto resultC = groups_m.removeGroupById(groupId);
+        auto resultB = members_m.removeMemberById(id, requestee->id);
+        auto resultC = groups_m.removeGroupById(id);
 
         return createDtoResponse(Status::CODE_200, resultC);
     }
