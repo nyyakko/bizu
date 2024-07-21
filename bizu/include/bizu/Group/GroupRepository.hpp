@@ -5,6 +5,7 @@
 #include "Group/Entities/Activity/ActivityRepository.hpp"
 #include "Group/Entities/Member/MemberRepository.hpp"
 #include "DTO/GroupInfoDTO.hpp"
+#include "DTO/GroupInviteDTO.hpp"
 #include "DTO/GroupDTO.hpp"
 #include "DAO/GroupDAO.hpp"
 
@@ -34,7 +35,9 @@ public:
     oatpp::Object<StatusDTO> updateGroup(oatpp::Int64 const& groupId, oatpp::Object<GroupDTO> const& group);
     oatpp::Object<StatusDTO> removeGroupById(oatpp::Int64 const& groupId);
     oatpp::Object<GroupDTO> getGroupById(oatpp::Int64 const& groupId);
+    oatpp::Object<GroupDTO> getGroupByInvite(oatpp::String const& invite);
     oatpp::Vector<oatpp::Object<GroupDTO>> getGroups(oatpp::Int64 const& memberId);
     oatpp::Object<GroupInfoDTO> getInfo(oatpp::Int64 const& groupId);
+    oatpp::Object<GroupInviteDTO> createGroupInvite(oatpp::Int64 const& groupId);
 };
 

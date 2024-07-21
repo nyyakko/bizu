@@ -6,6 +6,7 @@
 #include "User/UserService.hpp"
 #include "Group/Entities/Member/MemberService.hpp"
 #include "Group/Entities/Activity/ActivityService.hpp"
+#include "oatpp/web/protocol/http/Http.hpp"
 
 #include <oatpp/web/server/api/ApiController.hpp>
 #include <oatpp/macro/codegen.hpp>
@@ -200,6 +201,37 @@ public:
             OATPP_ASSERT_HTTP(result != nullptr, Status::CODE_404, "Not found");
             return createDtoResponse(Status::CODE_200, result);
         }
+    }
+
+    ENDPOINT("POST", "groups/{groupId}/invite", createInvite, PATH(oatpp::Int64, groupId), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
+    {
+        auto requestee = users_m.getUserByAuth(auth->token);
+        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
+
+        auto member = members_m.getMemberById(groupId, requestee->id);
+        OATPP_ASSERT_HTTP(member != nullptr, Status::CODE_401, "Unauthorized");
+        OATPP_ASSERT_HTTP(member->userRole <= Role::ADMIN, Status::CODE_401, "Unauthorized");
+
+        return createDtoResponse(Status::CODE_200, groups_m.createGroupInvite(groupId));
+    }
+
+    ENDPOINT("POST", "groups/invite", joinByInvite, QUERY(oatpp::String, key), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
+    {
+        auto requestee = users_m.getUserByAuth(auth->token);
+        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
+
+        auto group = groups_m.getGroupByInvite(key);
+        OATPP_ASSERT_HTTP(group != nullptr, Status::CODE_404, "Not found");
+        OATPP_ASSERT_HTTP(members_m.getMemberById(group->id, requestee->id) == nullptr, Status::CODE_403, "Forbidden");
+
+        auto member = MemberDTO::createShared();
+        member->name = requestee->name;
+        member->id = requestee->id;
+        member->userRole = Role::GUEST;
+
+        members_m.addMember(group->id, member);
+
+        return createDtoResponse(Status::CODE_200, group);
     }
 };
 

@@ -28,3 +28,9 @@ CREATE TABLE "groupMembers" (
     "userRole" STRING NOT NULL
 );
 
+CREATE TABLE "groupInvites" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "groupId" INTEGER NOT NULL REFERENCES groups ON DELETE CASCADE,
+    "invite" STRING NOT NULL
+);
+

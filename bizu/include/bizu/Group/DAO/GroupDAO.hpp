@@ -33,6 +33,19 @@ public:
     );
 
     QUERY(
+        createGroupInvite,
+        "INSERT INTO groupInvites (groupId, invite) VALUES (:groupId, :invite);",
+        PARAM(oatpp::Int64, groupId),
+        PARAM(oatpp::String, invite)
+    );
+
+    QUERY(
+        getGroupByInvite,
+        "SELECT * FROM groups WHERE id IN (SELECT groupId FROM groupInvites WHERE invite = :invite);",
+        PARAM(oatpp::String, invite)
+    );
+
+    QUERY(
         getGroups,
         "SELECT * FROM groups WHERE id IN (SELECT groupId FROM groupMembers WHERE userId = :memberId);",
         PARAM(oatpp::Int64, memberId)

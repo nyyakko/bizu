@@ -35,7 +35,6 @@ public:
     {
         auto requestee = users_m.getUserByAuth(auth->token);
         OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
-        OATPP_ASSERT_HTTP(requestee->id == id, Status::CODE_401, "Unauthorized");
         return createDtoResponse(Status::CODE_200, users_m.updateUser(id, user));
     }
 
@@ -43,7 +42,6 @@ public:
     {
         auto requestee = users_m.getUserByAuth(auth->token);
         OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
-        OATPP_ASSERT_HTTP(requestee->id == id, Status::CODE_401, "Unauthorized");
         return createDtoResponse(Status::CODE_200, users_m.removeUserById(id));
     }
 
@@ -55,6 +53,13 @@ public:
         auto result = users_m.getUser(user);
         OATPP_ASSERT_HTTP(result != nullptr, Status::CODE_404, "Not found");
         return createDtoResponse(Status::CODE_200, result);
+    }
+
+    ENDPOINT("GET", "users/self", getSelf, AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
+    {
+        auto requestee = users_m.getUserByAuth(auth->token);
+        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
+        return createDtoResponse(Status::CODE_200, requestee);
     }
 };
 

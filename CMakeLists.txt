@@ -11,6 +11,7 @@ include(cmake/get_cpm.cmake)
 find_package(Threads REQUIRED)
 
 CPMAddPackage("gh:fmtlib/fmt#10.2.1")
+CPMAddPackage("gh:Dobiasd/FunctionalPlus#v0.2.24")
 
 CPMAddPackage(
     NAME oatpp
@@ -36,7 +37,7 @@ if (oatpp-sqlite_ADDED)
     add_library(oatpp::oatpp-sqlite ALIAS oatpp-sqlite)
 endif()
 
-set(bizu_ExternalLibraries Threads::Threads oatpp::oatpp oatpp::oatpp-sqlite fmt::fmt)
+set(bizu_ExternalLibraries Threads::Threads oatpp::oatpp oatpp::oatpp-sqlite fmt::fmt FunctionalPlus::fplus)
 
 add_subdirectory(bizu)
 
