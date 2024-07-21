@@ -43,6 +43,15 @@ public:
         "SELECT name FROM groups WHERE id = :groupId;",
         PARAM(oatpp::Int64, groupId)
     );
+
+    QUERY(
+        updateGroupName,
+        "UPDATE groups "
+        "    SET name = :name "
+        "WHERE id = :groupId;",
+        PARAM(oatpp::Int64, groupId),
+        PARAM(oatpp::String, name)
+    );
 };
 
 #include OATPP_CODEGEN_END(DbClient)

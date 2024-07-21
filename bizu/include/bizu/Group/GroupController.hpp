@@ -58,6 +58,21 @@ public:
         return createDtoResponse(Status::CODE_200, result);
     }
 
+    ENDPOINT("PATCH", "groups/{groupId}", updateGroup, PATH(oatpp::Int64, groupId), BODY_DTO(Object<GroupDTO>, group), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
+    {
+        auto requestee = users_m.getUserByAuth(auth->token);
+        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
+
+        auto member = members_m.getMemberById(groupId, requestee->id);
+        OATPP_ASSERT_HTTP(member != nullptr, Status::CODE_401, "Unauthorized");
+        OATPP_ASSERT_HTTP(member->userRole == Role::OWNER, Status::CODE_401, "Unauthorized");
+
+        auto result = groups_m.updateGroup(groupId, group);
+        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_404, "Not found");
+
+        return createDtoResponse(Status::CODE_200, result);
+    }
+
     ENDPOINT("DELETE", "groups/{groupId}/delete", removeGroupById, PATH(oatpp::Int64, groupId), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
     {
         auto requestee = users_m.getUserByAuth(auth->token);

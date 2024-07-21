@@ -16,6 +16,7 @@ private:
 
 public:
     oatpp::Object<GroupDTO> addGroup(oatpp::Object<GroupDTO> const& group) { return repository_m->addGroup(group); }
+    oatpp::Object<StatusDTO> updateGroup(oatpp::Int64 const& groupId, oatpp::Object<GroupDTO> const& group) { return repository_m->updateGroup(groupId, group); }
     oatpp::Object<StatusDTO> removeGroupById(oatpp::Int64 const& groupId) { return repository_m->removeGroupById(groupId); }
     oatpp::Object<GroupDTO> getGroupById(oatpp::Int64 const& groupId) { return repository_m->getGroupById(groupId); }
     oatpp::Vector<oatpp::Object<GroupDTO>> getGroups(oatpp::Int64 const& memberId) { return repository_m->getGroups(memberId); }

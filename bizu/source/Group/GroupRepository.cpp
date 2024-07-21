@@ -6,7 +6,20 @@ oatpp::Object<GroupDTO> GroupRepository::addGroup(oatpp::Object<GroupDTO> const&
 {
     auto operation = dao_m.getObject()->addGroup(group);
     auto groupId = oatpp::sqlite::Utils::getLastInsertRowId(operation->getConnection());
-    return getGroupById(static_cast<v_int32>(groupId));
+    return getGroupById(groupId);
+}
+
+oatpp::Object<StatusDTO> GroupRepository::updateGroup(oatpp::Int64 const& groupId, oatpp::Object<GroupDTO> const& group)
+{
+    if (getGroupById(groupId) == nullptr) return nullptr;
+
+    if (group->name) dao_m.getObject()->updateGroupName(groupId, group->name);
+
+    auto status = StatusDTO::createShared();
+
+    status->status = "OK";
+    status->code = 200;
+    return status;
 }
 
 oatpp::Object<StatusDTO> GroupRepository::removeGroupById(oatpp::Int64 const& groupId)
