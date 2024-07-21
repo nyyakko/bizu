@@ -148,7 +148,7 @@ public:
         OATPP_ASSERT_HTTP(member != nullptr, Status::CODE_401, "Unauthorized");
         OATPP_ASSERT_HTTP(member->userRole <= Role::ADMIN, Status::CODE_401, "Unauthorized");
 
-        auto result = activities_m.modifyActivity(groupId, id, activity);
+        auto result = activities_m.updateActivity(groupId, id, activity);
         OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_404, "Not found");
 
         return createDtoResponse(Status::CODE_200, result);
