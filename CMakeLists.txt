@@ -30,7 +30,7 @@ CPMAddPackage(
     GITHUB_REPOSITORY oatpp/oatpp-sqlite
     GIT_TAG master
     PATCHES "patches/oatpp_sqlite.patch"
-    OPTIONS "OATPP_BUILD_TESTS OFF"
+    OPTIONS "OATPP_SQLITE_AMALGAMATION ON" "OATPP_BUILD_TESTS OFF"
 )
 
 if (oatpp-sqlite_ADDED)
