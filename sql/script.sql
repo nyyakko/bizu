@@ -11,6 +11,13 @@ CREATE TABLE "groups" (
     "name" STRING NOT NULL
 );
 
+CREATE TABLE "groupMembers" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "groupId" INTEGER NOT NULL REFERENCES groups ON DELETE CASCADE,
+    "userId" INTEGER NOT NULL REFERENCES users ON DELETE CASCADE,
+    "userRole" STRING NOT NULL
+);
+
 CREATE TABLE "groupActivities" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "groupId" INTEGER NOT NULL REFERENCES groups ON DELETE CASCADE,
@@ -21,11 +28,12 @@ CREATE TABLE "groupActivities" (
     "description" STRING
 );
 
-CREATE TABLE "groupMembers" (
+CREATE TABLE "groupActivitiesComments" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "groupId" INTEGER NOT NULL REFERENCES groups ON DELETE CASCADE,
-    "userId" INTEGER NOT NULL REFERENCES users ON DELETE CASCADE,
-    "userRole" STRING NOT NULL
+    "activityId" INTEGER NOT NULL REFERENCES groupActivities ON DELETE CASCADE,
+    "authorId" INTEGER NOT NULL REFERENCES groupMembers ON DELETE CASCADE,
+    "content" STRING NOT NULL
 );
 
 CREATE TABLE "groupInvites" (
