@@ -11,7 +11,7 @@ class DatabaseComponent
 {
 public:
     OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::provider::Provider<oatpp::sqlite::Connection>>, dbConnectionProvider)([] {
-        auto connectionProvider = std::make_shared<oatpp::sqlite::ConnectionProvider>("/home/nyyakko/Git/bizu/database.sqlite");
+        auto connectionProvider = std::make_shared<oatpp::sqlite::ConnectionProvider>(HOME"/database.sqlite");
         return oatpp::sqlite::ConnectionPool::createShared(connectionProvider, 10, std::chrono::seconds(5));
     }());
 
