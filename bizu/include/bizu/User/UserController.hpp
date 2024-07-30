@@ -26,22 +26,20 @@ public:
 
     ENDPOINT("POST", "users/", addUser, BODY_DTO(Object<UserDTO>, user))
     {
-        auto result = users_m.addUser(user);
-        OATPP_ASSERT_HTTP(result != nullptr, Status::CODE_404, "Not found");
-        return createDtoResponse(Status::CODE_200, result);
+        return createDtoResponse(Status::CODE_200, users_m.addUser(user));
     }
 
     ENDPOINT("PATCH", "users/user", updateUser, QUERY(Int64, id), BODY_DTO(oatpp::Object<UserDTO>, user), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
     {
         auto requestee = users_m.getUserByAuth(auth->token);
-        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
+        OATPP_ASSERT_HTTP(requestee->code == 200, Status::CODE_401, "Unauthorized");
         return createDtoResponse(Status::CODE_200, users_m.updateUser(id, user));
     }
 
     ENDPOINT("DELETE", "users/deleteUser", removeUserById, QUERY(Int64, id), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
     {
         auto requestee = users_m.getUserByAuth(auth->token);
-        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
+        OATPP_ASSERT_HTTP(requestee->code == 200, Status::CODE_401, "Unauthorized");
         return createDtoResponse(Status::CODE_200, users_m.removeUserById(id));
     }
 
@@ -50,15 +48,13 @@ public:
         auto user = UserDTO::createShared();
         user->name = name;
         user->password = password;
-        auto result = users_m.getUser(user);
-        OATPP_ASSERT_HTTP(result != nullptr, Status::CODE_404, "Not found");
-        return createDtoResponse(Status::CODE_200, result);
+        return createDtoResponse(Status::CODE_200, users_m.getUser(user));
     }
 
     ENDPOINT("GET", "users/self", getSelf, AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
     {
-        auto requestee = users_m.getUserByAuth(auth->token);
-        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
+        auto const requestee = users_m.getUserByAuth(auth->token);
+        OATPP_ASSERT_HTTP(requestee->code == 200, Status::CODE_401, "Unauthorized");
         return createDtoResponse(Status::CODE_200, requestee);
     }
 };

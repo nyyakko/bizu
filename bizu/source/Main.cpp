@@ -1,5 +1,7 @@
 #include "User/UserController.hpp"
 #include "Group/GroupController.hpp"
+#include "Group/Entities/Activity/ActivityController.hpp"
+#include "Group/Entities/Member/MemberController.hpp"
 
 #include "MainComponent.hpp"
 
@@ -16,6 +18,8 @@ void run()
     {
         router->addController(std::make_shared<UserController>());
         router->addController(std::make_shared<GroupController>());
+        router->addController(std::make_shared<MemberController>());
+        router->addController(std::make_shared<ActivityController>());
     }
 
     OATPP_COMPONENT(std::shared_ptr<ConnectionHandler>, connectionHandler);

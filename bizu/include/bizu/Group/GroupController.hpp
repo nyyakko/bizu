@@ -1,11 +1,10 @@
 #pragma once
 
-#include "Group/Entities/Member/DTO/MemberDTO.hpp"
 #include "Group/GroupService.hpp"
 
+#include "Group/Entities/Member/DTO/MemberDTO.hpp"
 #include "User/UserService.hpp"
 #include "Group/Entities/Member/MemberService.hpp"
-#include "Group/Entities/Activity/ActivityService.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 
 #include <oatpp/web/server/api/ApiController.hpp>
@@ -24,7 +23,6 @@ class GroupController : public api::ApiController
 private:
     GroupService groups_m;
     UserService users_m;
-    ActivityService activities_m;
     MemberService members_m;
 
 public:
@@ -34,27 +32,23 @@ public:
         setDefaultAuthorizationHandler(std::make_shared<handler::BearerAuthorizationHandler>(""));
     }
 
-    ENDPOINT("GET", "groups/", getGroup, AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
-    {
-        auto requestee = users_m.getUserByAuth(auth->token);
-        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
-        return createDtoResponse(Status::CODE_200, groups_m.getGroups(requestee->id));
-    }
-
     ENDPOINT("POST", "groups/", addGroup, BODY_DTO(Object<GroupDTO>, group), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
     {
         auto requestee = users_m.getUserByAuth(auth->token);
         OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
 
         auto owner = MemberDTO::createShared();
-        owner->name = requestee->name;
-        owner->id = requestee->id;
+        owner->name = requestee->value->name;
+        owner->id = requestee->value->id;
         owner->userRole = Role::OWNER;
 
         group->ownerId = owner->id;
 
-        auto result = groups_m.addGroup(group);
-        members_m.addMember(result->id, owner);
+        auto const result = groups_m.addGroup(group);
+        if (result->code == 200)
+        {
+            members_m.addMember(result->value->id, owner);
+        }
 
         return createDtoResponse(Status::CODE_200, result);
     }
@@ -64,14 +58,11 @@ public:
         auto requestee = users_m.getUserByAuth(auth->token);
         OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
 
-        auto member = members_m.getMemberById(id, requestee->id);
+        auto member = members_m.getMemberById(id, requestee->value->id);
         OATPP_ASSERT_HTTP(member != nullptr, Status::CODE_401, "Unauthorized");
-        OATPP_ASSERT_HTTP(member->userRole == Role::OWNER, Status::CODE_401, "Unauthorized");
+        OATPP_ASSERT_HTTP(member->value->userRole == Role::OWNER, Status::CODE_401, "Unauthorized");
 
-        auto result = groups_m.updateGroup(id, group);
-        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_404, "Not found");
-
-        return createDtoResponse(Status::CODE_200, result);
+        return createDtoResponse(Status::CODE_200, groups_m.updateGroup(id, group));
     }
 
     ENDPOINT("DELETE", "groups/deleteGroup", removeGroupById, QUERY(oatpp::Int64, id), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
@@ -79,127 +70,26 @@ public:
         auto requestee = users_m.getUserByAuth(auth->token);
         OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
 
-        auto member = members_m.getMemberById(id, requestee->id);
+        auto member = members_m.getMemberById(id, requestee->value->id);
         OATPP_ASSERT_HTTP(member != nullptr, Status::CODE_401, "Unauthorized");
-        OATPP_ASSERT_HTTP(member->userRole == Role::OWNER, Status::CODE_401, "Unauthorized");
+        OATPP_ASSERT_HTTP(member->value->userRole == Role::OWNER, Status::CODE_401, "Unauthorized");
 
-        auto resultB = members_m.removeMemberById(id, requestee->id);
-        auto resultC = groups_m.removeGroupById(id);
-
-        return createDtoResponse(Status::CODE_200, resultC);
+        return createDtoResponse(Status::CODE_200, groups_m.removeGroupById(id));
     }
 
-    ENDPOINT("GET", "groups/{groupId}", getInfo, PATH(oatpp::Int64, groupId), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
+    ENDPOINT("GET", "groups/", getGroups, QUERY(oatpp::Int64, id), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
     {
         auto requestee = users_m.getUserByAuth(auth->token);
         OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
-        OATPP_ASSERT_HTTP(members_m.getMemberById(groupId, requestee->id) != nullptr, Status::CODE_401, "Unauthorized");
-
-        auto result = groups_m.getInfo(groupId);
-        OATPP_ASSERT_HTTP(result != nullptr, Status::CODE_404, "Not found");
-
-        return createDtoResponse(Status::CODE_200, result);
-    }
-
-    ENDPOINT("POST", "groups/{groupId}/member", addMember, PATH(oatpp::Int64, groupId), BODY_DTO(Object<MemberDTO>, member), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
-    {
-        auto requestee = users_m.getUserByAuth(auth->token);
-        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
-
-        auto result = members_m.getMemberById(groupId, requestee->id);
-        OATPP_ASSERT_HTTP(result != nullptr, Status::CODE_401, "Unauthorized");
-        OATPP_ASSERT_HTTP(result->userRole <= Role::ADMIN, Status::CODE_401, "Unauthorized");
-
-        return createDtoResponse(Status::CODE_200, members_m.addMember(groupId, member));
-    }
-
-    ENDPOINT("DELETE", "groups/{groupId}/deleteMember", removeMemberById, PATH(oatpp::Int64, groupId), QUERY(Int64, id), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
-    {
-        auto requestee = users_m.getUserByAuth(auth->token);
-        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
-
-        auto result = members_m.getMemberById(groupId, requestee->id);
-        OATPP_ASSERT_HTTP(result != nullptr, Status::CODE_401, "Unauthorized");
-        OATPP_ASSERT_HTTP(result->userRole <= Role::ADMIN, Status::CODE_401, "Unauthorized");
-
-        return createDtoResponse(Status::CODE_200, members_m.removeMemberById(groupId, id));
-    }
-
-    ENDPOINT("GET", "groups/{groupId}/member", getMemberById, PATH(oatpp::Int64, groupId), QUERY(Int64, id), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
-    {
-        auto requestee = users_m.getUserByAuth(auth->token);
-        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
-        OATPP_ASSERT_HTTP(members_m.getMemberById(groupId, requestee->id) != nullptr, Status::CODE_401, "Unauthorized");
 
         if (id == -1)
         {
-            return createDtoResponse(Status::CODE_200, members_m.getMembers(groupId));
+            return createDtoResponse(Status::CODE_200, groups_m.getGroups(requestee->value->id));
         }
         else
         {
-            auto result = members_m.getMemberById(groupId, id);
-            OATPP_ASSERT_HTTP(result != nullptr, Status::CODE_404, "Not found");
-            return createDtoResponse(Status::CODE_200, result);
-        }
-    }
-
-    ENDPOINT("POST", "groups/{groupId}/activity", addActivity, PATH(oatpp::Int64, groupId), BODY_DTO(Object<ActivityDTO>, activity), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
-    {
-        auto requestee = users_m.getUserByAuth(auth->token);
-        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
-
-        auto result = members_m.getMemberById(groupId, requestee->id);
-        OATPP_ASSERT_HTTP(result != nullptr, Status::CODE_401, "Unauthorized");
-        OATPP_ASSERT_HTTP(result->userRole <= Role::ADMIN, Status::CODE_401, "Unauthorized");
-
-        return createDtoResponse(Status::CODE_200, activities_m.addActivity(groupId, activity));
-    }
-
-    ENDPOINT("PATCH", "groups/{groupId}/activity", updateActivity, PATH(oatpp::Int64, groupId), QUERY(Int64, id), BODY_DTO(Object<ActivityDTO>, activity), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
-    {
-        auto requestee = users_m.getUserByAuth(auth->token);
-        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
-
-        auto member = members_m.getMemberById(groupId, requestee->id);
-        OATPP_ASSERT_HTTP(member != nullptr, Status::CODE_401, "Unauthorized");
-        OATPP_ASSERT_HTTP(member->userRole <= Role::ADMIN, Status::CODE_401, "Unauthorized");
-
-        auto result = activities_m.updateActivity(groupId, id, activity);
-        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_404, "Not found");
-
-        return createDtoResponse(Status::CODE_200, result);
-    }
-
-    ENDPOINT("DELETE", "groups/{groupId}/deleteActivity", removeActivityById, PATH(oatpp::Int64, groupId), QUERY(Int64, id), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
-    {
-        auto requestee = users_m.getUserByAuth(auth->token);
-        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
-
-        auto member = members_m.getMemberById(groupId, requestee->id);
-        OATPP_ASSERT_HTTP(member != nullptr, Status::CODE_401, "Unauthorized");
-        OATPP_ASSERT_HTTP(member->userRole <= Role::ADMIN, Status::CODE_401, "Unauthorized");
-
-        auto result = activities_m.removeActivityById(groupId, id);
-        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_404, "Not found");
-
-        return createDtoResponse(Status::CODE_200, result);
-    }
-
-    ENDPOINT("GET", "groups/{groupId}/activity", getActivityById, PATH(oatpp::Int64, groupId), QUERY(Int64, id), AUTHORIZATION(std::shared_ptr<handler::DefaultBearerAuthorizationObject>, auth))
-    {
-        auto requestee = users_m.getUserByAuth(auth->token);
-        OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
-        OATPP_ASSERT_HTTP(members_m.getMemberById(groupId, requestee->id) != nullptr, Status::CODE_401, "Unauthorized");
-
-        if (id == -1)
-        {
-            return createDtoResponse(Status::CODE_200, activities_m.getActivities(groupId));
-        }
-        else
-        {
-            auto result = activities_m.getActivityById(groupId, id);
-            OATPP_ASSERT_HTTP(result != nullptr, Status::CODE_404, "Not found");
-            return createDtoResponse(Status::CODE_200, result);
+            OATPP_ASSERT_HTTP(members_m.getMemberById(id, requestee->value->id) != nullptr, Status::CODE_401, "Unauthorized");
+            return createDtoResponse(Status::CODE_200, groups_m.getGroupInfo(id));
         }
     }
 
@@ -208,9 +98,9 @@ public:
         auto requestee = users_m.getUserByAuth(auth->token);
         OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
 
-        auto member = members_m.getMemberById(groupId, requestee->id);
+        auto member = members_m.getMemberById(groupId, requestee->value->id);
         OATPP_ASSERT_HTTP(member != nullptr, Status::CODE_401, "Unauthorized");
-        OATPP_ASSERT_HTTP(member->userRole <= Role::ADMIN, Status::CODE_401, "Unauthorized");
+        OATPP_ASSERT_HTTP(member->value->userRole <= Role::ADMIN, Status::CODE_401, "Unauthorized");
 
         return createDtoResponse(Status::CODE_200, groups_m.createGroupInvite(groupId));
     }
@@ -220,16 +110,19 @@ public:
         auto requestee = users_m.getUserByAuth(auth->token);
         OATPP_ASSERT_HTTP(requestee != nullptr, Status::CODE_401, "Unauthorized");
 
-        auto group = groups_m.getGroupByInvite(key);
-        OATPP_ASSERT_HTTP(group != nullptr, Status::CODE_404, "Not found");
-        OATPP_ASSERT_HTTP(members_m.getMemberById(group->id, requestee->id) == nullptr, Status::CODE_403, "Forbidden");
+        auto const group = groups_m.getGroupByInvite(key);
 
-        auto member = MemberDTO::createShared();
-        member->name = requestee->name;
-        member->id = requestee->id;
-        member->userRole = Role::GUEST;
+        if (group->code == 200)
+        {
+            OATPP_ASSERT_HTTP(members_m.getMemberById(group->value->id, requestee->value->id) == nullptr, Status::CODE_403, "Forbidden");
 
-        members_m.addMember(group->id, member);
+            auto member = MemberDTO::createShared();
+            member->name = requestee->value->name;
+            member->id = requestee->value->id;
+            member->userRole = Role::GUEST;
+
+            members_m.addMember(group->value->id, member);
+        }
 
         return createDtoResponse(Status::CODE_200, group);
     }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Generic/DTO/StatusDTO.hpp"
+#include "Generic/DTO/OperationDTO.hpp"
 
 #include "DTO/UserDTO.hpp"
 #include "DAO/UserDAO.hpp"
@@ -19,12 +19,12 @@ private:
     }());
 
 public:
-    oatpp::Object<UserDTO> addUser(oatpp::Object<UserDTO> const& user);
-    oatpp::Object<StatusDTO> updateUser(oatpp::Int64 const& userId, oatpp::Object<UserDTO> const& user);
-    oatpp::Object<StatusDTO> removeUserById(oatpp::Int64 const& userId);
-    oatpp::Vector<oatpp::Object<UserDTO>> getUsers();
-    oatpp::Object<UserDTO> getUser(oatpp::Object<UserDTO> const& user);
-    oatpp::Object<UserDTO> getUserById(oatpp::Int64 const& userId);
-    oatpp::Object<UserDTO> getUserByAuth(oatpp::String const& authorization);
+    Operation<oatpp::Object<UserDTO>> addUser(oatpp::Object<UserDTO> const& user);
+    Operation<void> updateUser(oatpp::Int64 const& userId, oatpp::Object<UserDTO> const& user);
+    Operation<void> removeUserById(oatpp::Int64 const& userId);
+    Operation<oatpp::Vector<oatpp::Object<UserDTO>>> getUsers();
+    Operation<oatpp::Object<UserDTO>> getUser(oatpp::Object<UserDTO> const& user);
+    Operation<oatpp::Object<UserDTO>> getUserById(oatpp::Int64 const& userId);
+    Operation<oatpp::Object<UserDTO>> getUserByAuth(oatpp::String const& authorization);
 };
 

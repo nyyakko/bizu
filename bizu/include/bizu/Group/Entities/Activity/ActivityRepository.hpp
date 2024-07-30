@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Generic/DTO/StatusDTO.hpp"
+#include "Generic/DTO/OperationDTO.hpp"
 
 #include "DTO/ActivityDTO.hpp"
 #include "DAO/ActivityDAO.hpp"
@@ -19,10 +19,10 @@ private:
     }());
 
 public:
-    oatpp::Object<ActivityDTO> addActivity(oatpp::Int64 const& groupId, oatpp::Object<ActivityDTO> const& activity);
-    oatpp::Object<StatusDTO> updateActivity(oatpp::Int64 const& groupId, oatpp::Int64 const& activityId, oatpp::Object<ActivityDTO> const& activity);
-    oatpp::Object<StatusDTO> removeActivityById(oatpp::Int64 const& groupId, oatpp::Int64 const& activityId);
-    oatpp::Object<ActivityDTO> getActivityById(oatpp::Int64 const& groupId, oatpp::Int64 const& activityId);
-    oatpp::Vector<oatpp::Object<ActivityDTO>> getActivities(oatpp::Int64 const& groupId);
+    Operation<oatpp::Object<ActivityDTO>> addActivity(oatpp::Int64 const& groupId, oatpp::Object<ActivityDTO> const& activity);
+    Operation<void> updateActivity(oatpp::Int64 const& groupId, oatpp::Int64 const& activityId, oatpp::Object<ActivityDTO> const& activity);
+    Operation<void> removeActivityById(oatpp::Int64 const& groupId, oatpp::Int64 const& activityId);
+    Operation<oatpp::Object<ActivityDTO>> getActivityById(oatpp::Int64 const& groupId, oatpp::Int64 const& activityId);
+    Operation<oatpp::Vector<oatpp::Object<ActivityDTO>>> getActivities(oatpp::Int64 const& groupId);
 };
 

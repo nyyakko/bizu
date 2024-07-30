@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Generic/DTO/StatusDTO.hpp"
+#include "Generic/DTO/OperationDTO.hpp"
 
 #include "DTO/MemberDTO.hpp"
 #include "DAO/MemberDAO.hpp"
@@ -19,9 +19,9 @@ private:
     }());
 
 public:
-    oatpp::Object<MemberDTO> addMember(oatpp::Int64 const& groupId, oatpp::Object<MemberDTO> const& member);
-    oatpp::Object<StatusDTO> removeMemberById(oatpp::Int64 const& groupId, oatpp::Int64 const& memberId);
-    oatpp::Vector<oatpp::Object<MemberDTO>> getMembers(oatpp::Int64 const& groupId);
-    oatpp::Object<MemberDTO> getMemberById(oatpp::Int64 const& groupId, oatpp::Int64 const& memberId);
+    Operation<oatpp::Object<MemberDTO>> addMember(oatpp::Int64 const& groupId, oatpp::Object<MemberDTO> const& member);
+    Operation<void> removeMemberById(oatpp::Int64 const& groupId, oatpp::Int64 const& memberId);
+    Operation<oatpp::Vector<oatpp::Object<MemberDTO>>> getMembers(oatpp::Int64 const& groupId);
+    Operation<oatpp::Object<MemberDTO>> getMemberById(oatpp::Int64 const& groupId, oatpp::Int64 const& memberId);
 };
 

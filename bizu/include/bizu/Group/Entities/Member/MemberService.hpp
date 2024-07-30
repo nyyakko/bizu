@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Generic/DTO/StatusDTO.hpp"
+#include "Generic/DTO/OperationDTO.hpp"
 
 #include "MemberRepository.hpp"
 #include "DTO/MemberDTO.hpp"
@@ -14,8 +14,8 @@ private:
     OATPP_COMPONENT(std::shared_ptr<MemberRepository>, repository_m);
 
 public:
-    oatpp::Object<MemberDTO> addMember(oatpp::Int64 const& groupId, oatpp::Object<MemberDTO> const& member) { return repository_m->addMember(groupId, member); }
-    oatpp::Object<StatusDTO> removeMemberById(oatpp::Int64 const& groupId, oatpp::Int64 const& memberId) { return repository_m->removeMemberById(groupId, memberId); }
-    oatpp::Vector<oatpp::Object<MemberDTO>> getMembers(oatpp::Int64 const& groupId) { return repository_m->getMembers(groupId); }
-    oatpp::Object<MemberDTO> getMemberById(oatpp::Int64 const& groupId, oatpp::Int64 const& memberId) { return repository_m->getMemberById(groupId, memberId); }
+    Operation<oatpp::Object<MemberDTO>> addMember(oatpp::Int64 const& groupId, oatpp::Object<MemberDTO> const& member) { return repository_m->addMember(groupId, member); }
+    Operation<void> removeMemberById(oatpp::Int64 const& groupId, oatpp::Int64 const& memberId) { return repository_m->removeMemberById(groupId, memberId); }
+    Operation<oatpp::Vector<oatpp::Object<MemberDTO>>> getMembers(oatpp::Int64 const& groupId) { return repository_m->getMembers(groupId); }
+    Operation<oatpp::Object<MemberDTO>> getMemberById(oatpp::Int64 const& groupId, oatpp::Int64 const& memberId) { return repository_m->getMemberById(groupId, memberId); }
 };
